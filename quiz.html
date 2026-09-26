@@ -50,10 +50,11 @@
     .opcao-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px;
-      border-radius: 4px;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 6px;
       cursor: pointer;
+      user-select: none;
     }
 
     .opcao-item:hover {
@@ -67,10 +68,9 @@
       flex-shrink: 0;
     }
 
-    .opcao-item label {
-      cursor: pointer;
+    .texto-opcao {
       font-size: 16px;
-      width: 100%;
+      color: #333;
     }
 
     button {
@@ -142,7 +142,6 @@
   <script>
     const tituloQuiz = document.getElementById('titulo-quiz');
     
-    // Foco inicial no título
     setTimeout(function() {
       tituloQuiz.focus();
     }, 100);
@@ -205,7 +204,7 @@
         const divOpcao = document.createElement('div');
         divOpcao.className = 'opcao-item';
 
-        // 1. O Radio recebe a descrição completa via aria-label (garante leitura única no TalkBack)
+        // 1. O Input possui o aria-label e é o ÚNICO ponto de leitura
         const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = `resposta`;
@@ -213,24 +212,30 @@
         radio.value = index;
         radio.setAttribute('aria-label', textoOpcao);
 
-        // 2. O Label visível recebe aria-hidden="true" para impedir leitura dupla no NVDA/VoiceOver
-        const label = document.createElement('label');
-        label.htmlFor = idInput;
-        label.textContent = textoOpcao;
-        label.setAttribute('aria-hidden', 'true');
+        // 2. Usamos <span> visível puramente estético com aria-hidden="true" (sem tag <label>)
+        const spanTexto = document.createElement('span');
+        spanTexto.className = 'texto-opcao';
+        spanTexto.textContent = textoOpcao;
+        spanTexto.setAttribute('aria-hidden', 'true');
+
+        // Permite clicar na div inteira para marcar o rádio
+        divOpcao.addEventListener('click', function(e) {
+          if (e.target !== radio) {
+            radio.checked = true;
+          }
+        });
 
         divOpcao.appendChild(radio);
-        divOpcao.appendChild(label);
+        divOpcao.appendChild(spanTexto);
         containerOpcoes.appendChild(divOpcao);
       });
 
-      // Transfere o foco de forma limpa para o enunciado
+      // Transfere o foco para o enunciado
       setTimeout(function() {
         elementoEnunciado.focus();
       }, 150);
     }
 
-    // Processa a resposta selecionada
     btnProxima.addEventListener('click', function() {
       const opcaoSelecionada = document.querySelector('input[name="resposta"]:checked');
 
@@ -252,7 +257,6 @@
       }
     });
 
-    // Exibe o resultado final
     function exibirResultado() {
       areaQuiz.style.display = 'none';
       areaResultado.style.display = 'block';
@@ -270,7 +274,6 @@
       }, 100);
     }
 
-    // Reinicia o quiz
     btnReiniciar.addEventListener('click', function() {
       questaoAtual = 0;
       pontuacao = 0;
@@ -279,7 +282,6 @@
       carregarQuestao();
     });
 
-    // Redireciona para a home
     btnHome.addEventListener('click', function() {
       window.location.href = 'index.html';
     });
