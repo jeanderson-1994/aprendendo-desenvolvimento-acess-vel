@@ -142,6 +142,7 @@
   <script>
     const tituloQuiz = document.getElementById('titulo-quiz');
     
+    // Foco inicial no título
     setTimeout(function() {
       tituloQuiz.focus();
     }, 100);
@@ -197,39 +198,39 @@
       containerOpcoes.innerHTML = '';
 
       q.opcoes.forEach((opcao, index) => {
-        const idInput = `radio-${questaoAtual}-${index}`;
-        const idLabel = `label-${questaoAtual}-${index}`;
+        const idInput = `opt-${questaoAtual}-${index}`;
         const letra = String.fromCharCode(97 + index); // a, b, c, d
         const textoOpcao = `${letra}) ${opcao}`;
 
         const divOpcao = document.createElement('div');
         divOpcao.className = 'opcao-item';
 
+        // 1. O Radio recebe a descrição completa via aria-label (garante leitura única no TalkBack)
         const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = `resposta`;
         radio.id = idInput;
         radio.value = index;
-        
-        // Atrela diretamente a descrição do label ao input para o TalkBack
-        radio.setAttribute('aria-labelledby', idLabel);
+        radio.setAttribute('aria-label', textoOpcao);
 
+        // 2. O Label visível recebe aria-hidden="true" para impedir leitura dupla no NVDA/VoiceOver
         const label = document.createElement('label');
-        label.id = idLabel;
         label.htmlFor = idInput;
         label.textContent = textoOpcao;
+        label.setAttribute('aria-hidden', 'true');
 
         divOpcao.appendChild(radio);
         divOpcao.appendChild(label);
         containerOpcoes.appendChild(divOpcao);
       });
 
-      // Foca no enunciado da questão
+      // Transfere o foco de forma limpa para o enunciado
       setTimeout(function() {
         elementoEnunciado.focus();
       }, 150);
     }
 
+    // Processa a resposta selecionada
     btnProxima.addEventListener('click', function() {
       const opcaoSelecionada = document.querySelector('input[name="resposta"]:checked');
 
@@ -251,6 +252,7 @@
       }
     });
 
+    // Exibe o resultado final
     function exibirResultado() {
       areaQuiz.style.display = 'none';
       areaResultado.style.display = 'block';
@@ -268,6 +270,7 @@
       }, 100);
     }
 
+    // Reinicia o quiz
     btnReiniciar.addEventListener('click', function() {
       questaoAtual = 0;
       pontuacao = 0;
@@ -276,6 +279,7 @@
       carregarQuestao();
     });
 
+    // Redireciona para a home
     btnHome.addEventListener('click', function() {
       window.location.href = 'index.html';
     });
