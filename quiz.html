@@ -51,32 +51,241 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fff;
+      padding: 8px;
+      border-radius: 4px;
       cursor: pointer;
     }
 
     .opcao-item:hover {
       background-color: #e9e9e9;
-    Para te ajudar da melhor forma, **você poderia compartilhar o código que tentou usar e o que exatamente não funcionou** (ex: o TalkBack ignora o elemento, lê o texto errado, não ganha foco)?
+    }
 
-Enquanto você envia, aqui estão as formas mais comuns de resolver problemas de acessibilidade com TalkBack no **Android Native (XML/Jetpack Compose)** e no **Flutter**:
+    .opcao-item input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
 
----
+    .opcao-item label {
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
 
-### 1. Jetpack Compose (Kotlin)
-No Compose, você usa o modificador `semantics`:
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-```kotlin
-// Para mudar a descrição do que é lido
-Modifier.semantics { 
-    contentDescription = "Descrição personalizada para o TalkBack" 
-}
+    button:hover {
+      background-color: #218838;
+    }
 
-// Para fazer o TalkBack ignorar o elemento (e ler apenas os filhos)
-Modifier.semantics(mergeDescendants = true) {}
+    .btn-secundario {
+      background-color: #005fcc;
+    }
 
-// Para ocultar totalmente do TalkBack
-Modifier.clearAndSetSemantics { }
+    .btn-secundario:hover {
+      background-color: #004494;
+    }
+
+    .resultado {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #e2e3e5;
+    }
+
+    .botoes-resultado {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <h1 id="titulo-quiz" tabindex="-1">Questionário de Acessibilidade Web (WCAG)</h1>
+
+    <!-- Área interativa do Quiz (sem aria-live para evitar duplicação) -->
+    <div id="area-quiz" class="container-questao">
+      <form id="form-quiz" onsubmit="event.preventDefault();">
+        <fieldset>
+          <!-- O legend guarda o enunciado e recebe o foco ao trocar de questão -->
+          <legend id="enunciado" tabindex="-1"></legend>
+          <div id="container-opcoes" class="opcoes"></div>
+        </fieldset>
+
+        <button type="button" id="btnProxima">Próxima questão</button>
+      </form>
+    </div>
+
+    <!-- Área do Resultado Final -->
+    <div id="area-resultado" class="resultado" style="display: none;" tabindex="-1">
+      <p id="mensagem-resultado"></p>
+      <div class="botoes-resultado">
+        <button type="button" id="btnReiniciar">Tentar novamente</button>
+        <button type="button" id="btnHome" class="btn-secundario">Voltar para a Home</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const tituloQuiz = document.getElementById('titulo-quiz');
+    
+    // Foco inicial no título
+    setTimeout(function() {
+      tituloQuiz.focus();
+    }, 100);
+
+    // Banco de Perguntas sobre WCAG
+    const perguntas = [
+      {
+        pergunta: "1. Quantos princípios fundamentais sustentam as diretrizes da WCAG?",
+        opcoes: ["3 princípios", "4 princípios", "5 princípios", "6 princípios"],
+        correta: 1 // Índice 1 = "4 princípios"
+      },
+      {    
+        pergunta: "2. Qual o papel do atributo 'alt' em elementos de imagem HTML?",
+        opcoes: [
+          "Mudar a cor da imagem",
+          "Fornecer uma descrição textual para leitores de tela",
+          "Aumentar a resolução da imagem",
+          "Criar um atalho de teclado"
+        ],
+        correta: 1
+      },
+      {
+        pergunta: "3. O que garante o princípio 'Operável' da WCAG?",
+        opcoes: [
+          "Que o site só funcione em celulares",
+          "Que os componentes de interface e navegação sejam utilizáveis (ex: via teclado)",
+          "Que todo o texto esteja em maiúsculas",
+          "Que o código seja escrito apenas em JavaScript"
+        ],
+        correta: 1
+      },
+      {
+        pergunta: "4. Qual é o nível intermediário de conformidade da WCAG mais adotado mundialmente?",
+        opcoes: ["Nível A", "Nível AA", "Nível AAA", "Nível AAAA"],
+        correta: 1
+      }
+    ];
+
+    let questaoAtual = 0;
+    let pontuacao = 0;
+
+    const elementoEnunciado = document.getElementById('enunciado');
+    const containerOpcoes = document.getElementById('container-opcoes');
+    const btnProxima = document.getElementById('btnProxima');
+    const areaQuiz = document.getElementById('area-quiz');
+    const areaResultado = document.getElementById('area-resultado');
+    const mensagemResultado = document.getElementById('mensagem-resultado');
+    const btnReiniciar = document.getElementById('btnReiniciar');
+    const btnHome = document.getElementById('btnHome');
+
+    // Carrega a questão com vinculação HTML nativa (compatível com NVDA, TalkBack e VoiceOver)
+    function carregarQuestao() {
+      const q = perguntas[questaoAtual];
+      elementoEnunciado.textContent = q.pergunta;
+      containerOpcoes.innerHTML = '';
+
+      q.opcoes.forEach((opcao, index) => {
+        const idUnico = `opcao-${questaoAtual}-${index}`;
+        const letra = String.fromCharCode(97 + index); // Converte para a, b, c, d
+        const textoCompletoOpcao = `${letra}) ${opcao}`;
+
+        const divOpcao = document.createElement('div');
+        divOpcao.className = 'opcao-item';
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `resposta-q${questaoAtual}`;
+        radio.id = idUnico;
+        radio.value = index;
+
+        const label = document.createElement('label');
+        label.htmlFor = idUnico; // Vincula explicitamente o label ao input via ID
+        label.textContent = textoCompletoOpcao;
+
+        divOpcao.appendChild(radio);
+        divOpcao.appendChild(label);
+        containerOpcoes.appendChild(divOpcao);
+      });
+
+      // Move o foco para o enunciado da nova questão de forma limpa
+      setTimeout(function() {
+        elementoEnunciado.focus();
+      }, 100);
+    }
+
+    // Processa a resposta selecionada e avança a pergunta
+    btnProxima.addEventListener('click', function() {
+      const opcaoSelecionada = document.querySelector(`input[name="resposta-q${questaoAtual}"]:checked`);
+
+      if (!opcaoSelecionada) {
+        alert("Por favor, selecione uma opção antes de prosseguir.");
+        return;
+      }
+
+      if (parseInt(opcaoSelecionada.value) === perguntas[questaoAtual].correta) {
+        pontuacao++;
+      }
+
+      questaoAtual++;
+
+      if (questaoAtual < perguntas.length) {
+        carregarQuestao();
+      } else {
+        exibirResultado();
+      }
+    });
+
+    // Exibe o resultado final
+    function exibirResultado() {
+      areaQuiz.style.display = 'none';
+      areaResultado.style.display = 'block';
+
+      if (pontuacao === 4) {
+        mensagemResultado.textContent = `Acertou ${pontuacao} de 4 questões. Parabéns, você domina o assunto!`;
+      } else if (pontuacao >= 2 && pontuacao <= 3) {
+        mensagemResultado.textContent = `Acertou ${pontuacao} de 4 questões. Você tem um breve conhecimento do tema.`;
+      } else {
+        mensagemResultado.textContent = `Acertou ${pontuacao} de 4 questões. Você precisa aprofundar mais o assunto.`;
+      }
+
+      setTimeout(function() {
+        areaResultado.focus();
+      }, 100);
+    }
+
+    // Reinicia o quiz
+    btnReiniciar.addEventListener('click', function() {
+      questaoAtual = 0;
+      pontuacao = 0;
+      areaResultado.style.display = 'none';
+      areaQuiz.style.display = 'block';
+      carregarQuestao();
+    });
+
+    // Redireciona para a página inicial (index.html)
+    btnHome.addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+
+    // Inicializa a primeira questão
+    carregarQuestao();
+  </script>
+
+</body>
+</html>
