@@ -61,8 +61,8 @@
     }
 
     .opcao-item input[type="radio"] {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       cursor: pointer;
     }
 
@@ -87,7 +87,6 @@
       background-color: #218838;
     }
 
-    /* Botão secundário para voltar à página inicial */
     .btn-secundario {
       background-color: #005fcc;
     }
@@ -118,8 +117,8 @@
   <main>
     <h1 id="titulo-quiz" tabindex="-1">Questionário de Acessibilidade Web (WCAG)</h1>
 
-    <!-- Área interativa do Quiz -->
-    <div id="area-quiz" class="container-questao" aria-live="polite">
+    <!-- Área interativa do Quiz (sem aria-live para evitar duplicação) -->
+    <div id="area-quiz" class="container-questao">
       <form id="form-quiz" onsubmit="event.preventDefault();">
         <fieldset>
           <!-- O legend guarda o enunciado e recebe o foco ao trocar de questão -->
@@ -195,38 +194,36 @@
     const btnReiniciar = document.getElementById('btnReiniciar');
     const btnHome = document.getElementById('btnHome');
 
-    // Carrega a questão e gera a estrutura acessível com letras nas alternativas
+    // Carrega a questão com vinculação HTML nativa (compatível com NVDA, TalkBack e VoiceOver)
     function carregarQuestao() {
       const q = perguntas[questaoAtual];
       elementoEnunciado.textContent = q.pergunta;
       containerOpcoes.innerHTML = '';
 
       q.opcoes.forEach((opcao, index) => {
-        const idUnico = `opcao-${index}`;
-        
-        // Converte o índice (0, 1, 2, 3) em letras (a, b, c, d)
-        const letra = String.fromCharCode(97 + index); 
+        const idUnico = `opcao-${questaoAtual}-${index}`;
+        const letra = String.fromCharCode(97 + index); // Converte para a, b, c, d
+        const textoCompletoOpcao = `${letra}) ${opcao}`;
 
         const divOpcao = document.createElement('div');
         divOpcao.className = 'opcao-item';
 
         const radio = document.createElement('input');
         radio.type = 'radio';
-        radio.name = 'resposta';
+        radio.name = `resposta-q${questaoAtual}`;
         radio.id = idUnico;
         radio.value = index;
 
         const label = document.createElement('label');
-        label.htmlFor = idUnico;
-        // Exibe a letra acompanhada do texto da alternativa
-        label.textContent = `${letra}) ${opcao}`;
+        label.htmlFor = idUnico; // Vincula explicitamente o label ao input via ID
+        label.textContent = textoCompletoOpcao;
 
         divOpcao.appendChild(radio);
         divOpcao.appendChild(label);
         containerOpcoes.appendChild(divOpcao);
       });
 
-      // Move o foco para o enunciado da nova questão para o leitor ler de imediato
+      // Move o foco para o enunciado da nova questão de forma limpa
       setTimeout(function() {
         elementoEnunciado.focus();
       }, 100);
@@ -234,7 +231,7 @@
 
     // Processa a resposta selecionada e avança a pergunta
     btnProxima.addEventListener('click', function() {
-      const opcaoSelecionada = document.querySelector('input[name="resposta"]:checked');
+      const opcaoSelecionada = document.querySelector(`input[name="resposta-q${questaoAtual}"]:checked`);
 
       if (!opcaoSelecionada) {
         alert("Por favor, selecione uma opção antes de prosseguir.");
@@ -254,7 +251,7 @@
       }
     });
 
-    // Exibe o resultado final com mensagens e placar
+    // Exibe o resultado final
     function exibirResultado() {
       areaQuiz.style.display = 'none';
       areaResultado.style.display = 'block';
