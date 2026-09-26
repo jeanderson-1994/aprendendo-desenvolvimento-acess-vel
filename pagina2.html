@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+<title>Segunda página</title>
+<style>
+  body {
+    font-family: arial, sans-serif;
+    text-aling: center;
+    padding-top: 50px;
+     background-color: #f0f0f0;
+   }
+
+    button {
+      padding: 12px 24px;
+    font-size: 16px;
+      cursor: pointer;
+    background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px
+     }
+
+    button:hover {
+      background-color: #5a6268;
+    }
+</style>
+</head>
+<body>
+<button id="btnVoltar"> voltar</button>"
+
+<div>
+<h1 id="titulo-principal" tabindex="-1"> Você chegou na página dois com sucesso</h1>
+</div>
+<div>
+<h2> seja bem vindo no primeiro desenvolvimento de javascript</h2>
+<p>Se você chegou aqui, é porque conseguiu dar o primeiro passo</p>
+<p> Parabéns pela sua dedicação, você é incrível!</p>
+
+
+</div>
+<script>
+   const btnVoltar = document.getElementById('btnVoltar');
+    btnVoltar.addEventListener('click', function (){
+    window.location.href = 'index.html';
+    });
+
+   const tituloPrincipal = document.getElementById('titulo-principal');
+    tituloPrincipal.focus()
+</script>
+
+
+</bodi>
+</html>
+
+
+

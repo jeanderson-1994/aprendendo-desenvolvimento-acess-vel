@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Acessibilidade digital</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+
+    h1:focus {
+      outline: 3px solid #005fcc;
+      outline-offset: 4px;
+    }
+
+    .card-topico {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .menu-botoes {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <div>
+      <h1 id="titulo-principal" tabindex="-1">Aprendendo a desenvolver códigos acessíveis</h1>
+      <p>Selecione o próximo tópico a seguir</p>
+      
+      <!-- Bloco do Quiz -->
+      <div class="card-topico">
+        <h2>Teste os teus conhecimentos sobre a WCAG</h2>
+        <button id="btn-quiz">Ir para o questionário de WCAG</button>
+      </div>
+    </div>
+
+    <!-- Outros botões da página -->
+    <div class="menu-botoes">
+      <button id="acessibilidade-digital">Conheça sobre acessibilidade digital clicando aqui</button>
+      <button id="acessibilidade-fisica">Conheça aqui sobre acessibilidade física clicando aqui</button>
+      <button id="acessibilidade-wcag">Conheça aqui sobre Web Content Accessibility Guidelines (WCAG) clicando aqui</button>
+    </div>
+
+    <button id="meuBotao">Clique aqui para ir para próximo passo do aprendizado</button>
+  </main>
+
+  <script>
+    // 1. Captura de todos os elementos
+    const acessibilidade_digital = document.getElementById('acessibilidade-digital');
+    const acessibilidade_fisica = document.getElementById('acessibilidade-fisica');
+    const acessibilidade_wcag = document.getElementById('acessibilidade-wcag');
+    const btnQuiz = document.getElementById('btn-quiz');
+    const principalElemento = document.getElementById('titulo-principal');
+    const btn = document.getElementById('meuBotao');
+
+    // 2. Foco no título ao carregar a página
+    setTimeout(function() {
+      principalElemento.focus();
+    }, 100);
+
+    // 3. Evento do Botão do Quiz (redireciona para quiz.html)
+    btnQuiz.addEventListener('click', function () {
+      window.location.href = 'quiz.html';
+    });
+
+    // 4. Eventos dos outros botões
+    acessibilidade_wcag.addEventListener('click', function (){
+      window.location.href = 'https://www.w3.org/TR/WCAG22/';
+    });
+
+    acessibilidade_fisica.addEventListener('click', function (){
+      window.location.href = 'https://www.scielo.br/j/rgenf/a/LJTRRCcRQKwjDnN7dXbmhHD/?lang=pt';
+    });
+
+    acessibilidade_digital.addEventListener('click', function (){
+      window.location.href = 'https://www.handtalk.me/br/blog/o-que-e-acessibilidade-digital/';
+    });
+
+    btn.addEventListener('click', function() {
+      window.location.href = 'pagina2.html';
+    });
+  </script>
+</body>
+</html>
